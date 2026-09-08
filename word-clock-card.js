@@ -295,10 +295,9 @@ class WordClockCard extends HTMLElement {
       const configLineHeight = this._config && this._config.line_spacing ? this._config.line_spacing : '1.2';
       this._textContainer.style.lineHeight = configLineHeight;
       
-      const textRect = this._textContainer.getBoundingClientRect();
       const isOverflowing =
-        textRect.height > maxHeight ||
-        textRect.width > maxWidth;
+        this._textContainer.scrollHeight > maxHeight ||
+        this._textContainer.scrollWidth > maxWidth;
 
       if (!isOverflowing) {
         bestSize = mid;
