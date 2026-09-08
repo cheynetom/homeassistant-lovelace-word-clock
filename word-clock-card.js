@@ -143,6 +143,22 @@ class WordClockCard extends HTMLElement {
     } else {
       card.style.removeProperty('--word-clock-font-color');
     }
+    if (this._config.letter_spacing) {
+      card.style.setProperty('--word-clock-letter-spacing', this._config.letter_spacing);
+    } else {
+      card.style.removeProperty('--word-clock-letter-spacing');
+    }
+    if (this._config.line_spacing) {
+      card.style.setProperty('--word-clock-line-spacing', this._config.line_spacing);
+    } else {
+      card.style.removeProperty('--word-clock-line-spacing');
+    }
+    const VALID_ORIENTATIONS = new Set(['left', 'center', 'right', 'justify']);
+    if (this._config.orientation && VALID_ORIENTATIONS.has(this._config.orientation)) {
+      card.style.setProperty('--word-clock-orientation', this._config.orientation);
+    } else {
+      card.style.removeProperty('--word-clock-orientation');
+    }
   }
 
   getCardSize() {
@@ -213,9 +229,10 @@ class WordClockCard extends HTMLElement {
         font-family: var(--word-clock-font-family, var(--paper-font-common-base_-_font-family, sans-serif));
         font-size: var(--word-clock-font-size, 1.5em);
         font-weight: 500;
-        letter-spacing: 0.03em;
+        letter-spacing: var(--word-clock-letter-spacing, 0.03em);
+        line-height: var(--word-clock-line-spacing, normal);
         color: var(--word-clock-font-color, var(--primary-color, #03a9f4));
-        text-align: center;
+        text-align: var(--word-clock-orientation, center);
       }
     `;
 
@@ -320,6 +337,27 @@ class WordClockCardEditor extends HTMLElement {
             </select>
           </label>
         </div>
+        <div class="side-by-side">
+          <label>
+            <span>Orientation</span>
+            <select data-prop="orientation" class="dropdown">
+              <option value="center">Center</option>
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+              <option value="justify">Justify</option>
+            </select>
+          </label>
+        </div>
+        <div class="side-by-side">
+          <label>
+            <span>Line Spacing</span>
+            <input type="text" data-prop="line_spacing" class="text-input" placeholder="e.g. 1.5, 2em">
+          </label>
+          <label>
+            <span>Letter Spacing</span>
+            <input type="text" data-prop="letter_spacing" class="text-input" placeholder="e.g. 0.1em, 2px">
+          </label>
+        </div>
       </div>
       <style>
         .card-config {
@@ -359,6 +397,17 @@ class WordClockCardEditor extends HTMLElement {
           font-size: 14px;
           padding: 4px;
         }
+        .text-input {
+          height: 32px;
+          border: 1px solid var(--divider-color, #ccc);
+          border-radius: 4px;
+          background: var(--card-background-color, white);
+          color: var(--primary-text-color, black);
+          font-size: 14px;
+          padding: 4px;
+          box-sizing: border-box;
+          width: 100%;
+        }
       </style>
 
     `;
@@ -366,7 +415,7 @@ class WordClockCardEditor extends HTMLElement {
     // Add value bound event listeners correctly for lit-element/standard HTML workaround
     
     // Add value bound event listeners correctly for lit-element/standard HTML workaround
-    const inputs = this.shadowRoot.querySelectorAll('.color-picker, .dropdown');
+    const inputs = this.shadowRoot.querySelectorAll('.color-picker, .dropdown, .text-input');
     for (const input of inputs) {
       input.addEventListener('change', (e) => this._valueChanged(e, input.dataset.prop));
     }
@@ -383,6 +432,18 @@ class WordClockCardEditor extends HTMLElement {
     {
       const select = this.shadowRoot.querySelector('[data-prop="capitalization"]');
       if (select) select.value = this._config.capitalization || 'upper';
+    }
+    {
+      const select = this.shadowRoot.querySelector('[data-prop="orientation"]');
+      if (select) select.value = this._config.orientation || 'center';
+    }
+    {
+      const input = this.shadowRoot.querySelector('[data-prop="line_spacing"]');
+      if (input) input.value = this._config.line_spacing || '';
+    }
+    {
+      const input = this.shadowRoot.querySelector('[data-prop="letter_spacing"]');
+      if (input) input.value = this._config.letter_spacing || '';
     }
 
   }
