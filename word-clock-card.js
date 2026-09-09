@@ -221,95 +221,28 @@ class WordClockCard extends HTMLElement {
     style.textContent = `
       ha-card {
         padding: 16px;
-        display: block;
-      }
-      .content-wrapper {
-        width: 100%;
-        aspect-ratio: var(--word-clock-aspect-ratio, 1);
-        position: relative;
-      }
-      .content-container {
-        position: absolute;
-        inset: 0;
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
       }
       .clock-text {
         font-family: var(--word-clock-font-family, var(--paper-font-common-base_-_font-family, sans-serif));
+        font-size: var(--word-clock-font-size, 1.5em);
         font-weight: 500;
         letter-spacing: var(--word-clock-letter-spacing, 0.03em);
+        line-height: var(--word-clock-line-spacing, normal);
         color: var(--word-clock-font-color, var(--primary-color, #03a9f4));
         text-align: var(--word-clock-orientation, center);
-        width: 100%;
-        word-wrap: break-word;
-        margin: 0;
       }
     `;
 
     const card = document.createElement('ha-card');
-    
-    this._contentWrapper = document.createElement('div');
-    this._contentWrapper.className = 'content-wrapper';
-    
-    this._contentContainer = document.createElement('div');
-    this._contentContainer.className = 'content-container';
-
     this._textContainer = document.createElement('div');
     this._textContainer.className = 'clock-text';
 
-    this._contentContainer.appendChild(this._textContainer);
-    this._contentWrapper.appendChild(this._contentContainer);
-    card.appendChild(this._contentWrapper);
-    
-    if (window.ResizeObserver) {
-      this._resizeObserver = new ResizeObserver(() => this._fitText());
-      this._resizeObserver.observe(this._contentContainer);
-    }
+    card.appendChild(this._textContainer);
     this._root.appendChild(style);
     this._root.appendChild(card);
-  }
-
-  _fitText() {
-    if (!this._contentContainer || !this._textContainer) return;
-
-    const maxWidth = this._contentContainer.clientWidth;
-    const maxHeight = this._contentContainer.clientHeight;
-
-    if (maxWidth === 0 || maxHeight === 0) return;
-
-    let minSize = 1;
-    let maxSize = 300;
-    let bestSize = minSize;
-    let bestLineHeight = 1.0;
-
-    // Remove fixed styles for accurate measurement
-    this._textContainer.style.fontSize = '';
-    this._textContainer.style.lineHeight = '';
-
-    while (minSize <= maxSize) {
-      const mid = Math.floor((minSize + maxSize) / 2);
-      this._textContainer.style.fontSize = `${mid}px`;
-      // Dynamically adjust line height proportionally or use config if present
-      const configLineHeight = this._config && this._config.line_spacing ? this._config.line_spacing : '1.2';
-      this._textContainer.style.lineHeight = configLineHeight;
-      
-      const isOverflowing =
-        this._textContainer.scrollHeight > maxHeight ||
-        this._textContainer.scrollWidth > maxWidth;
-
-      if (!isOverflowing) {
-        bestSize = mid;
-        minSize = mid + 1;
-      } else {
-        maxSize = mid - 1;
-      }
-    }
-    
-    // Apply best size found
-    this._textContainer.style.fontSize = `${bestSize}px`;
-    this._textContainer.style.lineHeight = (this._config && this._config.line_spacing) ? this._config.line_spacing : '1.2';
   }
 
   _render() {
@@ -319,7 +252,6 @@ class WordClockCard extends HTMLElement {
       words.join(' '),
       this._config && this._config.capitalization
     );
-    this._fitText();
   }
 
   static getConfigElement() {
